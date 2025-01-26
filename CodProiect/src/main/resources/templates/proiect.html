@@ -1,0 +1,470 @@
+<!--Partea de front-end a aplicației
+* @author Ionescu Vlad-Andrei
+* @version 25 Decembrie 2024
+-->
+
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Permite responsive design -->
+    <title>Administrare Bază de Date</title> <!-- Titlul paginii -->
+    <style>
+        /* Stiluri de bază pentru pagină */
+        body {
+            font-family: Arial, sans-serif; /* Fontul utilizat pe pagină */
+            margin: 0; /* Elimină marginea implicită */
+            padding: 0; /* Elimină padding-ul implicit */
+        }
+        /* Stiluri pentru tab-uri */
+        .tabs {
+            display: flex; /* Folosește flexbox pentru aranjarea tab-urilor */
+            background-color: #f1f1f1; /* Culoarea de fundal a tab-urilor */
+        }
+        /* Stiluri pentru butoanele tab-uri */
+        .tab-button {
+            padding: 14px 20px; /* Padding pentru butoane */
+            cursor: pointer; /* Cursorul devine pointer la hover */
+            background-color: #ddd; /* Culoare de fundal pentru butoane */
+            border: 1px solid #ccc; /* Marginile butoanelor */
+            flex: 1; /* Fiecare buton ocupă un loc egal */
+            text-align: center; /* Centrarea textului */
+        }
+        .tab-button.active {
+            background-color: #ccc; /* Culoare pentru butonul activ */
+        }
+        /* Stiluri pentru conținutul tab-urilor */
+        .tab-content {
+            display: none; /* Ascunde conținutul inițial */
+            padding: 20px; /* Padding pentru conținut */
+            border: 1px solid #ccc; /* Marginile conținutului */
+            margin-top: -1px; /* Elimină spațiul dintre tab și conținut */
+        }
+        .tab-content.active {
+            display: block; /* Afișează conținutul activ */
+        }
+        /* Stiluri pentru tabele */
+        table {
+            width: 100%; /* Tabelul ocupă întreaga lățime */
+            border-collapse: collapse; /* Elimină spațiul dintre celule */
+            margin-top: 20px; /* Spațiu deasupra tabelului */
+        }
+        table, th, td {
+            border: 1px solid #ddd; /* Bordură pentru tabel și celule */
+        }
+        th, td {
+            padding: 10px; /* Padding pentru celule */
+            text-align: left; /* Alinierea textului la stânga */
+        }
+        /* Stiluri pentru formulare */
+        .form-container {
+            margin-top: 20px; /* Spațiu deasupra containerului formularului */
+        }
+        .form-container input {
+            width: 100%; /* Lățimea input-urilor */
+            padding: 8px; /* Padding pentru input-uri */
+            margin: 5px 0; /* Spațiu între input-uri */
+            border: 1px solid #ccc; /* Bordură pentru input-uri */
+        }
+        /* Stiluri pentru butoanele din formulare */
+        .form-container button {
+            padding: 10px 15px; /* Padding pentru butoane */
+            background-color: #4CAF50; /* Culoare de fundal verde */
+            color: white; /* Culoarea textului */
+            border: none; /* Fără bordură */
+            cursor: pointer; /* Cursorul devine pointer la hover */
+        }
+        .form-container button:hover {
+            background-color: #45a049; /* Culoare mai închisă la hover */
+        }
+    </style>
+</head>
+<body>
+<div class="tabs">
+    <!-- Tab-uri pentru navigare -->
+    <div class="tab-button active" onclick="showTab('sala')">Săli</div>
+    <div class="tab-button" onclick="showTab('echipamente')">Echipamente</div>
+    <div class="tab-button" onclick="showTab('furnizori')">Furnizori</div>
+    <div class="tab-button" onclick="showTab('utilizatori')">Utilizatori</div>
+</div>
+
+<!-- Conținutul tab-ului pentru Săli -->
+<div id="sala" class="tab-content active">
+    <h2>Săli</h2>
+    <div class="form-container">
+        <h3>Adaugă Sală</h3>
+        <!-- Formular pentru adăugarea unei săli -->
+        <form id="add-sala-form" onsubmit="addItem(event, '/api/sala', 'add-sala-form')">
+            <input type="text" name="nume" placeholder="Nume Sală" required>
+            <input type="number" name="capacitate" placeholder="Capacitate" required>
+            <button type="submit">Adaugă Sală</button>
+        </form>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>sală_id</th>
+            <th>nume</th>
+            <th>capacitate</th>
+            <th>Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody id="sala-table-body"></tbody> <!-- Loc pentru datele sălilor -->
+    </table>
+    <div class="form-container">
+        <h3>Actualizează Sală</h3>
+        <!-- Formular pentru actualizarea unei săli -->
+        <form id="update-sala-form" onsubmit="updateSala(event)">
+            <input type="hidden" name="sala_id" id="update-sala-id"> <!-- ID-ul sălii ascuns-->
+            <input type="text" name="nume" id="update-sala-nume" placeholder="Nume Sală" required>
+            <input type="number" name="capacitate" id="update-sala-capacitate" placeholder="Capacitate" required>
+            <button type="submit">Actualizează Sală</button>
+        </form>
+    </div>
+</div>
+
+<!-- Conținutul tab-ului pentru Echipamente -->
+<div id="echipamente" class="tab-content">
+    <h2>Echipamente</h2>
+    <div class="form-container">
+        <h3>Adaugă Echipament</h3>
+        <!-- Formular pentru adăugarea unui echipament -->
+        <form id="add-echipament-form" onsubmit="addItem(event, '/api/echipamente', 'add-echipament-form')">
+            <input type="text" name="nume" placeholder="Nume Echipament" required>
+            <button type="submit">Adaugă Echipament</button>
+        </form>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>echipament_id</th>
+            <th>nume</th>
+            <th>Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody id="echipamente-table-body"></tbody> <!-- Loc pentru datele echipamentelor -->
+    </table>
+    <div class="form-container">
+        <h3>Actualizează Echipament</h3>
+        <!-- Formular pentru actualizarea unui echipament -->
+        <form id="update-echipament-form" onsubmit="updateEchipament(event)">
+            <input type="hidden" name="echipament_id" id="update-echipament-id"> <!-- ID-ul echipamentului ascuns-->
+            <input type="text" name="nume" id="update-echipament-nume" placeholder="Nume Echipament" required>
+            <button type="submit">Actualizează Echipament</button>
+        </form>
+    </div>
+</div>
+
+<!-- Conținutul tab-ului pentru Furnizori -->
+<div id="furnizori" class="tab-content">
+    <h2>Furnizori</h2>
+    <div class="form-container">
+        <h3>Adaugă Furnizor</h3>
+        <!-- Formular pentru adăugarea unui furnizor -->
+        <form id="add-furnizor-form" onsubmit="addItem(event, '/api/furnizori', 'add-furnizor-form')">
+            <input type="text" name="nume" placeholder="Nume Furnizor" required>
+            <input type="text" name="adresa" placeholder="Adresă" required>
+            <input type="text" name="telefon" placeholder="Telefon" required>
+            <button type="submit">Adaugă Furnizor</button>
+        </form>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>furnizor_id</th>
+            <th>nume</th>
+            <th>adresa</th>
+            <th>telefon</th>
+            <th>Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody id="furnizori-table-body"></tbody> <!-- Loc pentru datele furnizorilor -->
+    </table>
+    <div class="form-container">
+        <h3>Actualizează Furnizor</h3>
+        <!-- Formular pentru actualizarea unui furnizor -->
+        <form id="update-furnizor-form" onsubmit="updateFurnizor(event)">
+            <input type="hidden" name="furnizor_id" id="update-furnizor-id"> <!-- ID-ul furnizorului ascuns -->
+            <input type="text" name="nume" id="update-furnizor-nume" placeholder="Nume Furnizor" required>
+            <input type="text" name="adresa" id="update-furnizor-adresa" placeholder="Adresă" required>
+            <input type="text" name="telefon" id="update-furnizor-telefon" placeholder="Telefon" required>
+            <button type="submit">Actualizează Furnizor</button>
+        </form>
+    </div>
+</div>
+
+<!-- Conținutul tab-ului pentru Utilizatori -->
+<div id="utilizatori" class="tab-content">
+    <h2>Utilizatori</h2>
+    <div class="form-container">
+        <h3>Adaugă Utilizator</h3>
+        <!-- Formular pentru adăugarea unui utilizator -->
+        <form id="add-utilizator-form" onsubmit="addItem(event, '/api/utilizatori', 'add-utilizator-form')">
+            <input type="text" name="nume" placeholder="Nume Utilizator" required>
+            <input type="text" name="tip_utilizator" placeholder="Tip Utilizator" required>
+            <button type="submit">Adaugă Utilizator</button>
+        </form>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>utilizator_id</th>
+            <th>nume</th>
+            <th>tip_utilizator</th>
+            <th>Acțiuni</th>
+        </tr>
+        </thead>
+        <tbody id="utilizatori-table-body"></tbody> <!-- Loc pentru datele utilizatorilor -->
+    </table>
+    <div class="form-container">
+        <h3>Actualizează Utilizator</h3>
+        <!-- Formular pentru actualizarea unui utilizator -->
+        <form id="update-utilizator-form" onsubmit="updateUtilizator(event)">
+            <input type="hidden" name="utilizator_id" id="update-utilizator-id"> <!-- ID-ul utilizatorului ascuns -->
+            <input type="text" name="nume" id="update-utilizator-nume" placeholder="Nume Utilizator" required>
+            <input type="text" name="tip_utilizator" id="update-utilizator-tip" placeholder="Tip Utilizator" required>
+            <button type="submit">Actualizează Utilizator</button>
+        </form>
+    </div>
+</div>
+<script>
+    // Funcție asynchronă pentru a obține date de la un API și a le popula într-un tabel
+    async function fetchData(endpoint, tableBodyId) {
+        try {
+            // Face o cerere GET către endpoint-ul specificat
+            const response = await fetch(endpoint);
+            // Verifică dacă răspunsul este OK, aruncând o eroare în caz contrar
+            if (!response.ok) throw new Error("Eroare la obținerea datelor!");
+            // Convertește răspunsul în format JSON
+            const data = await response.json();
+            // Obține elementul tabelului în care se vor adăuga datele
+            const tableBody = document.getElementById(tableBodyId);
+            // Resetează conținutul tabelului
+            tableBody.innerHTML = '';
+
+            // Parcurge fiecare element din date pentru a crea rânduri în tabel
+            data.forEach(item => {
+                const row = document.createElement('tr'); // Creează un nou rând
+                // Adaugă fiecare proprietate a obiectului ca o celulă în rând
+                for (const key in item) {
+                    row.innerHTML += `<td>${item[key]}</td>`;
+                }
+                // Creează o celulă pentru acțiuni (editare și ștergere)
+                const actionCell = document.createElement('td');
+                actionCell.innerHTML = `
+                    <button onclick='editItem("${endpoint}", ${JSON.stringify(item)})'>Editează</button>
+                    <button onclick="deleteItem('${endpoint}', ${item[Object.keys(item)[0]]})">Șterge</button>
+                `;
+                row.appendChild(actionCell); // Adaugă celula de acțiuni în rând
+                tableBody.appendChild(row); // Adaugă rândul în tabel
+            });
+        } catch (error) {
+            // Loghează erorile în consolă
+            console.error("Eroare:", error.message);
+        }
+    }
+
+    // Funcție pentru a încărca datele din toate secțiunile
+    async function loadData() {
+        // Apelează funcția fetchData pentru fiecare endpoint API
+        fetchData('/api/sala', 'sala-table-body');
+        fetchData('/api/echipamente', 'echipamente-table-body');
+        fetchData('/api/furnizori', 'furnizori-table-body');
+        fetchData('/api/utilizatori', 'utilizatori-table-body');
+    }
+
+    // Încărcarea datelor la deschiderea ferestrei
+    window.onload = loadData;
+
+    // Funcție pentru a schimba tab-urile active
+    function showTab(tabName) {
+        const tabs = document.querySelectorAll('.tab-content'); // Toate tab-urile
+        const buttons = document.querySelectorAll('.tab-button'); // Toate butoanele tab
+
+        // Elimină clasa 'active' de la toate tab-urile
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Elimină clasa 'active' de la toate butoanele
+        buttons.forEach(button => {
+            button.classList.remove('active');
+        });
+
+        // Afișează tab-ul selectat și activează butonul corespunzător
+        document.getElementById(tabName).classList.add('active');
+        document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`).classList.add('active');
+    }
+
+    // Funcție pentru a edita un element specific
+    function editItem(endpoint, item) {
+        // Verifică tipul endpoint-ului pentru a completa câmpurile corespunzătoare
+        if (endpoint === '/api/sala') {
+            document.getElementById('update-sala-id').value = item.sala_id;
+            document.getElementById('update-sala-nume').value = item.nume;
+            document.getElementById('update-sala-capacitate').value = item.capacitate;
+        } else if (endpoint === '/api/echipamente') {
+            document.getElementById('update-echipament-id').value = item.echipament_id;
+            document.getElementById('update-echipament-nume').value = item.nume;
+        } else if (endpoint === '/api/furnizori') {
+            document.getElementById('update-furnizor-id').value = item.furnizor_id;
+            document.getElementById('update-furnizor-nume').value = item.nume;
+            document.getElementById('update-furnizor-adresa').value = item.adresa;
+            document.getElementById('update-furnizor-telefon').value = item.telefon;
+        } else if (endpoint === '/api/utilizatori') {
+            document.getElementById('update-utilizator-id').value = item.utilizator_id;
+            document.getElementById('update-utilizator-nume').value = item.nume;
+            document.getElementById('update-utilizator-tip').value = item.tip_utilizator;
+        }
+    }
+
+    // Funcție pentru a adăuga un nou element
+    async function addItem(event, endpoint, formId) {
+        event.preventDefault(); // Previne comportamentul implicit al formularului
+
+        const form = document.getElementById(formId); // Obține formularul
+        const formData = new FormData(form); // Creează un obiect FormData din formular
+        const data = {}; // Obiect pentru a stoca datele formularului
+
+        // Populează obiectul data cu valorile din formular
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+
+        try {
+            // Trimite o cerere POST pentru a adăuga elementul
+            await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Setează tipul de conținut
+                },
+                body: JSON.stringify(data) // Conversia datelor în JSON
+            });
+
+            form.reset(); // Resetează formularul
+            loadData(); // Reîncarcă datele pentru a afișa noul element
+        } catch (error) {
+            // Loghează erorile în consolă
+            console.error("Eroare la adăugarea elementului:", error);
+        }
+    }
+
+    // Funcție pentru a actualiza o sală
+    async function updateSala(event) {
+        event.preventDefault(); // Previne comportamentul implicit al formularului
+        const salaId = document.getElementById('update-sala-id').value; // Obține ID-ul sălii
+        const nume = document.getElementById('update-sala-nume').value; // Obține numele sălii
+        const capacitate = document.getElementById('update-sala-capacitate').value; // Obține capacitatea sălii
+
+        try {
+            // Trimite o cerere PUT pentru a actualiza sala
+            await fetch(`/api/sala/${salaId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json' // Setează tipul de conținut
+                },
+                body: JSON.stringify({ nume, capacitate }) // Conversia datelor în JSON
+            });
+
+            loadData(); // Reîncarcă datele
+            document.getElementById('update-sala-form').reset(); // Resetează formularul de actualizare
+        } catch (error) {
+            // Loghează erorile în consolă
+            console.error("Eroare la actualizarea sălii:", error);
+        }
+    }
+
+    // Funcție pentru a actualiza un echipament
+    async function updateEchipament(event) {
+        event.preventDefault(); // Previne comportamentul implicit al formularului
+        const echipamentId = document.getElementById('update-echipament-id').value; // Obține ID-ul echipamentului
+        const nume = document.getElementById('update-echipament-nume').value; // Obține numele echipamentului
+
+        try {
+            // Trimite o cerere PUT pentru a actualiza echipamentul
+            await fetch(`/api/echipamente/${echipamentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json' // Setează tipul de conținut
+                },
+                body: JSON.stringify({ nume }) // Conversia datelor în JSON
+            });
+
+            loadData(); // Reîncarcă datele
+            document.getElementById('update-echipament-form').reset(); // Resetează formularul de actualizare
+        } catch (error) {
+            // Loghează erorile în consolă
+            console.error("Eroare la actualizarea echipamentului:", error);
+        }
+    }
+
+    // Funcție pentru a actualiza un furnizor
+    async function updateFurnizor(event) {
+        event.preventDefault(); // Previne comportamentul implicit al formularului
+        const furnizorId = document.getElementById('update-furnizor-id').value; // Obține ID-ul furnizorului
+        const nume = document.getElementById('update-furnizor-nume').value; // Obține numele furnizorului
+        const adresa = document.getElementById('update-furnizor-adresa').value; // Obține adresa furnizorului
+        const telefon = document.getElementById('update-furnizor-telefon').value; // Obține telefonul furnizorului
+
+        try {
+            // Trimite o cerere PUT pentru a actualiza furnizorul
+            await fetch(`/api/furnizori/${furnizorId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json' // Setează tipul de conținut
+                },
+                body: JSON.stringify({ nume, adresa, telefon }) // Conversia datelor în JSON
+            });
+
+            loadData(); // Reîncarcă datele
+            document.getElementById('update-furnizor-form').reset(); // Resetează formularul de actualizare
+        } catch (error) {
+            // Loghează erorile în consolă
+            console.error("Eroare la actualizarea furnizorului:", error);
+        }
+    }
+
+    // Funcție pentru a actualiza un utilizator
+    async function updateUtilizator(event) {
+        event.preventDefault(); // Previne comportamentul implicit al formularului
+        const utilizatorId = document.getElementById('update-utilizator-id').value; // Obține ID-ul utilizatorului
+        const nume = document.getElementById('update-utilizator-nume').value; // Obține numele utilizatorului
+        const tipUtilizator = document.getElementById('update-utilizator-tip').value; // Obține tipul utilizatorului
+
+        try {
+            // Trimite o cerere PUT pentru a actualiza utilizatorul
+            await fetch(`/api/utilizatori/${utilizatorId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json' // Setează tipul de conținut
+                },
+                body: JSON.stringify({ nume, tip_utilizator: tipUtilizator }) // Conversia datelor în JSON
+            });
+
+            loadData(); // Reîncarcă datele
+            document.getElementById('update-utilizator-form').reset(); // Resetează formularul de actualizare
+        } catch (error) {
+            // Loghează erorile în consolă
+            console.error("Eroare la actualizarea utilizatorului:", error);
+        }
+    }
+
+    // Funcție pentru a șterge un element
+    async function deleteItem(endpoint, id) {
+        // Afișează o casetă de confirmare pentru utilizator
+        const confirmDelete = confirm("Sigur doriți să ștergeți acest element?");
+        if (!confirmDelete) return; // Dacă utilizatorul anulează, oprește execuția
+        try {
+            // Trimite o cerere DELETE către API pentru a șterge elementul
+            await fetch(`${endpoint}/${id}`, {
+                method: 'DELETE'
+            });
+            loadData(); // Reîncarcă datele după ștergere
+        } catch (error) {
+            // Loghează erorile în consolă
+            console.error("Eroare la ștergerea elementului:", error);
+        }
+    }
+</script>
+</body>
+</html>
